@@ -1,0 +1,4 @@
+# Force LF
+*.sh text eol=lf
+rootfs/etc/s6-overlay/** text eol=lf
+rootfs/opt/**/*.sh text eol=lf

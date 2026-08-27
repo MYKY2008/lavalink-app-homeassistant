@@ -1,0 +1,93 @@
+name: "Lavalink"
+description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI."
+version: "2.0.4"
+slug: "lavalink"
+init: false
+arch:
+  - aarch64
+  - amd64
+startup: services
+
+# Izolovaný bridge network — NIE host_network
+# Port je vystavený na lokálnu sieť ale NIE na internet (bez router port-forwardu)
+host_network: false
+
+ports:
+  2333/tcp: 2333
+
+ports_description:
+  2333/tcp: "Lavalink WebSocket / HTTP API"
+
+hassio_api: false
+homeassistant_api: false
+privileged: []
+
+map:
+  - data
+
+# =============================================================================
+# KONFIGURÁCIA — viditeľná a editovateľná v HA UI (Settings → Add-ons → Lavalink → Configuration)
+# =============================================================================
+options:
+  # --- Základné ---
+  server_port: 2333
+  server_password: "hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D"
+
+  # --- JVM pamäť ---
+  jvm_max_heap_mb: 256
+  jvm_min_heap_mb: 64
+
+  # --- Zdroje (sources) ---
+  source_youtube: false
+  source_soundcloud: true
+  source_bandcamp: true
+  source_twitch: true
+  source_vimeo: true
+  source_http: true
+
+  # --- YouTube plugin ---
+  youtube_plugin_version: "1.18.2"
+  youtube_clients: "MUSIC,ANDROID_VR,WEB,WEBEMBEDDED,TVHTML5_SIMPLY,MWEB,IOS"
+  youtube_oauth_enabled: false
+  youtube_oauth_refresh_token: ""
+
+  # --- Výkon ---
+  buffer_duration_ms: 400
+  frame_buffer_duration_ms: 5000
+  player_update_interval: 5
+  youtube_playlist_load_limit: 6
+
+  # --- Logging ---
+  log_level: "INFO"
+
+schema:
+  # --- Základné ---
+  server_port: int
+  server_password: str
+
+  # --- JVM ---
+  jvm_max_heap_mb: int
+  jvm_min_heap_mb: int
+
+  # --- Zdroje ---
+  source_youtube: bool
+  source_soundcloud: bool
+  source_bandcamp: bool
+  source_twitch: bool
+  source_vimeo: bool
+  source_http: bool
+
+  # --- YouTube plugin ---
+  youtube_plugin_version: str
+  youtube_clients: str
+  youtube_oauth_enabled: bool
+  youtube_oauth_refresh_token: str
+
+  # --- Výkon ---
+  buffer_duration_ms: int
+  frame_buffer_duration_ms: int
+  player_update_interval: int
+  youtube_playlist_load_limit: int
+
+  # --- Logging ---
+  log_level: list(DEBUG|INFO|WARN|ERROR)

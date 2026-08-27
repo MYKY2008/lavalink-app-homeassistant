@@ -1,0 +1,10 @@
+#!/command/with-contenv bashio
+set -e
+
+JVM_MAX=$(bashio::config "jvm_max_heap_mb" "256")
+JVM_MIN=$(bashio::config "jvm_min_heap_mb" "64")
+
+bashio::log.info "Spustam Lavalink JVM (heap: ${JVM_MIN}m-${JVM_MAX}m)..."
+
+cd /opt/lavalink
+exec java -XX:+UseG1GC -Xmx"${JVM_MAX}m" -Xms"${JVM_MIN}m" -Dfile.encoding=UTF-8 -Djdk.tls.acknowledgeCloseNotify=true -jar Lavalink.jar

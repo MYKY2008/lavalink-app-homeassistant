@@ -1,0 +1,110 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Generuje application.yml z HA addon options
+# Spusta sa ako s6 oneshot pred Lavalink JVM
+# ==============================================================================
+set -e
+
+CONFIG_FILE="/opt/lavalink/application.yml"
+
+bashio::log.info "=== Lavalink Addon v2.0.2 ==="
+bashio::log.info "Generujem application.yml z HA konfiguracie..."
+
+# --- Nacitaj options ---
+SERVER_PORT=$(bashio::config 'server_port' '2333')
+SERVER_PASSWORD=$(bashio::config 'server_password' 'hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D')
+JVM_MAX=$(bashio::config 'jvm_max_heap_mb' '256')
+JVM_MIN=$(bashio::config 'jvm_min_heap_mb' '64')
+LOG_LEVEL=$(bashio::config 'log_level' 'INFO')
+YT_PLUGIN=$(bashio::config 'youtube_plugin_version' '1.18.1')
+YT_OAUTH=$(bashio::config 'youtube_oauth_enabled' 'false')
+YT_TOKEN=$(bashio::config 'youtube_oauth_refresh_token' '')
+YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,ANDROID_VR,WEB,WEBEMBEDDED,TVHTML5_SIMPLY,MWEB,IOS')
+SRC_YT=$(bashio::config 'source_youtube' 'false')
+SRC_SC=$(bashio::config 'source_soundcloud' 'true')
+SRC_BC=$(bashio::config 'source_bandcamp' 'true')
+SRC_TW=$(bashio::config 'source_twitch' 'true')
+SRC_VI=$(bashio::config 'source_vimeo' 'true')
+SRC_HT=$(bashio::config 'source_http' 'true')
+BUFFER=$(bashio::config 'buffer_duration_ms' '400')
+FBUFFER=$(bashio::config 'frame_buffer_duration_ms' '5000')
+PUPDATE=$(bashio::config 'player_update_interval' '5')
+YTLIMIT=$(bashio::config 'youtube_playlist_load_limit' '6')
+
+bashio::log.info "Port: ${SERVER_PORT} | Heap: ${JVM_MIN}m-${JVM_MAX}m | Log: ${LOG_LEVEL}"
+
+# --- Konvertuj CSV klientov na YAML ---
+YT_CLIENTS_YAML=""
+OLD_IFS="$IFS"
+IFS=','
+for c in $YT_CLIENTS; do
+    c=$(echo "$c" | tr -d '[:space:]')
+    [ -n "$c" ] && YT_CLIENTS_YAML="${YT_CLIENTS_YAML}      - ${c}"$'\n'
+done
+IFS="$OLD_IFS"
+[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - ANDROID_VR"$'\n'"      - WEB"$'\n'"      - WEBEMBEDDED"$'\n'"      - TVHTML5_SIMPLY"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'
+
+# --- OAuth blok ---
+if [ "${YT_OAUTH}" = "true" ]; then
+    if [ -n "${YT_TOKEN}" ] && [ "${YT_TOKEN}" != "null" ] && [ "${YT_TOKEN}" != "" ]; then
+        OAUTH_YAML="    oauth:"$'\n'"      enabled: true"$'\n'"      refreshToken: \"${YT_TOKEN}\""
+    else
+        OAUTH_YAML="    oauth:"$'\n'"      enabled: true"
+    fi
+else
+    OAUTH_YAML="    oauth:"$'\n'"      enabled: false"
+fi
+
+# --- Generuj application.yml ---
+cat > "${CONFIG_FILE}" <<EOF
+server:
+  port: ${SERVER_PORT}
+  address: 0.0.0.0
+
+lavalink:
+  plugins:
+    - dependency: "dev.lavalink.youtube:youtube-plugin:${YT_PLUGIN}"
+      snapshot: false
+  server:
+    password: "${SERVER_PASSWORD}"
+    sources:
+      youtube: ${SRC_YT}
+      bandcamp: ${SRC_BC}
+      soundcloud: ${SRC_SC}
+      twitch: ${SRC_TW}
+      vimeo: ${SRC_VI}
+      http: ${SRC_HT}
+      local: false
+    filters:
+      volume: true
+    bufferDurationMs: ${BUFFER}
+    frameBufferDurationMs: ${FBUFFER}
+    youtubePlaylistLoadLimit: ${YTLIMIT}
+    playerUpdateInterval: ${PUPDATE}
+    youtubeSearchEnabled: true
+    soundcloudSearchEnabled: true
+
+plugins:
+  youtube:
+    enabled: true
+    allowSearch: true
+    allowDirectVideoIds: true
+    allowDirectPlaylistIds: true
+    clients:
+${YT_CLIENTS_YAML}${OAUTH_YAML}
+
+metrics:
+  prometheus:
+    enabled: false
+
+sentry:
+  dsn: ""
+
+logging:
+  level:
+    root: ${LOG_LEVEL}
+    lavalink: ${LOG_LEVEL}
+    dev.lavalink.youtube.http.YoutubeOauth2Handler: INFO
+EOF
+
+bashio::log.info "application.yml vygenerovany OK"
