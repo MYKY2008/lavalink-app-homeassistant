@@ -1,6 +1,6 @@
 name: "Lavalink"
 description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
-version: "2.5.0"
+version: "2.6.0"
 slug: "lavalink"
 init: false
 arch:
