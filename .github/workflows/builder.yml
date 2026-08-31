@@ -11,29 +11,10 @@ on:
 permissions:
   contents: read
   packages: write
-  id-token: write
 
 jobs:
-  init:
-    runs-on: ubuntu-latest
-    name: Initialize builder
-    outputs:
-      architectures: ${{ steps.init.outputs.architectures }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Initialize HA addon builder info
-        id: init
-        uses: home-assistant/actions/helpers/addon-info@master
-
   build:
-    needs: init
     runs-on: ubuntu-latest
-    name: Build ${{ matrix.arch }}
-    strategy:
-      matrix:
-        arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,11 +26,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Add-on
-        uses: home-assistant/builder-action@2024.08.1
+      - name: Build and Publish Add-on
+        uses: home-assistant/builder@master
         with:
           args: |
-            --${{ matrix.arch }} \
-            --target /data \
+            --all \
+            --target . \
             --image "ghcr.io/${{ github.repository_owner }}/lavalink-app-homeassistant/{arch}" \
             --docker-hub ghcr.io/${{ github.repository_owner }}
