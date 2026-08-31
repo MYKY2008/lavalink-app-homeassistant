@@ -2,7 +2,6 @@ name: "Lavalink"
 description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
 version: "2.1.0"
 slug: "lavalink"
-image: "ghcr.io/myky2008/lavalink-app-homeassistant/{arch}"
 init: false
 arch:
   - aarch64
