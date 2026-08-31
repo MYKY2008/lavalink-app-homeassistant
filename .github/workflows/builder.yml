@@ -30,7 +30,8 @@ jobs:
         uses: home-assistant/builder@master
         with:
           args: |
-            --all \
+            --aarch64 \
+            --amd64 \
             --target . \
             --image "ghcr.io/${{ github.repository_owner }}/lavalink-app-homeassistant/{arch}" \
             --docker-hub ghcr.io/${{ github.repository_owner }}
