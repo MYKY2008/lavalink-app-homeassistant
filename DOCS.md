@@ -1,39 +1,78 @@
 # Lavalink Addon pre Home Assistant
 
-Lavalink v4 audio server pre Discord music boty. Všetky nastavenia
-meníš priamo v HA UI — žiadne YAML ručne.
+Lavalink v4 audio server pre Discord music boty (napr. na Oracle Cloud). Všetky nastavenia upravuješ pohodlne cez HA UI.
 
 ---
 
-## Inštalácia
+## Inštalácia pomocou Add-on Store
 
-### 1. Skopíruj addon súbory na HA
+### 1. Pridanie repozitára do HA
+V Home Assistant prejdi do:
+**Nastavenia (Settings) → Doplnky (Add-ons) → Obchod s doplnkami (Add-on Store) → ⋮ (tri bodky vpravo hore) → Repozitáre (Repositories)**
 
-Cez **Samba** addon (odporúčané):
-- Pripoj sa na `\\homeassistant.local\addons` (Windows) alebo `smb://homeassistant.local/addons` (Mac)
-- Skopíruj celý priečinok `ha-addon-lavalink` ako `/addons/lavalink`
-
-Výsledná štruktúra:
-```
-/addons/lavalink/
-  ├── config.yaml
-  ├── Dockerfile
-  ├── run.sh
-  └── DOCS.md
+Vlož URL:
+```text
+https://github.com/MYKY2008/lavalink-app-homeassistant
 ```
 
-### 2. Nainštaluj v HA
+### 2. Inštalácia
+1. V obchode s doplnkami vyhľadaj **Lavalink**.
+2. Klikni **Inštalovať** (díky predpripraveným GHCR Docker obrazom inštalácia trvá iba pár sekúnd).
+3. V záložke **Konfigurácia (Configuration)** skontroluj nastavenia.
+4. Klikni **Spustiť (Start)**.
 
-1. **Settings → Add-ons → Add-on Store**
-2. Klikni **⋮ (tri bodky)** vpravo hore → **Check for updates**
-3. Obnov stránku — v sekcii **"Local add-ons"** uvidíš **Lavalink**
-4. Klikni → **Install**
+---
 
-> Prvý build stiahne Lavalink.jar (~100 MB) — môže trvať 1-2 minúty.
+## Ako funguje doména / poddoména (`lavalink.myky.cz`)
 
-### 3. Nakonfiguruj (záložka Configuration)
+Lavalink **nie je webstránka s rozhraním pre prehliadač**. Je to backend API server pre Discord botov.
 
-Všetky hodnoty meníš v HA UI — žiadne súbory:
+> ⚠️ **Prečo prehliadač zobrazuje "This website has a problem" alebo HTTP 401/404?**
+> Ak otvoríš `http://<IP>:2333` alebo `https://lavalink.myky.cz` vo webovom prehliadači (Chrome, Firefox, Brave), server vráti kód `401 Unauthorized` (pretože prehliadač neposiela heslo v hlavičke). Reverse proxy (ako Cloudflare alebo Nginx Proxy Manager) vtedy zobrazí svoju chybovú stránku. **To je normálne a správne správanie backendu.**
+
+### Nastavenie Nginx Proxy Manager / Reverse Proxy
+Pre správne fungovanie pripojenia Discord bota cez subdoménu `lavalink.myky.cz`:
+
+1. V Nginx Proxy Manager / Cloudflare Tunnel nastav smerovanie na IP vášho Home Assistant a port `2333`.
+2. **Uisti sa, že sú zapnuté WebSockets** (`Websockets Support` v NPM).
+
+Príklad pre Nginx:
+```nginx
+location / {
+    proxy_pass http://192.168.1.X:2333;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+### Overenie funkčnosti servera cez `curl`
+V termináli môžeš overiť, že Lavalink beží a odpovedá:
+```bash
+curl -H "Authorization: hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D" http://192.168.1.X:2333/version
+```
+Odpoveď vráti verziu Lavalinku (napr. `4.0.8`).
+
+---
+
+## Prepojenie Discord Bota (Oracle Cloud -> Domáci HA)
+
+Keď bot beží na Oracle Cloud a Lavalink doma na Home Assistant OS:
+
+V konfigurácii bota (environment premenné alebo config súbor bota):
+```bash
+LAVALINK_HOST=lavalink.myky.cz     # alebo tvoja domáca IPv4 adresa
+LAVALINK_PORT=2333                 # alebo 443 ak používaš HTTPS/WSS proxy
+LAVALINK_PASSWORD=hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D
+LAVALINK_SECURE=false              # nastav true pri wss:// (HTTPS)
+```
+
+**Výhoda:** Všetok audio stream z YouTube ide cez tvoju domácu rezidenčnú prípojku (IPv4), čím sa úplne vyhneš blokáciám YouTube pre datacentrá (Oracle Cloud, AWS atď.).
+
+---
+
+## Konfiguračné možnosti (Configuration Tab)
 
 | Možnosť | Popis | Default |
 |---|---|---|
@@ -41,84 +80,17 @@ Všetky hodnoty meníš v HA UI — žiadne súbory:
 | `server_password` | Heslo pre pripojenie bota | `hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D` |
 | `jvm_max_heap_mb` | Max RAM pre JVM v MB | `256` |
 | `jvm_min_heap_mb` | Štartovacia RAM pre JVM v MB | `64` |
-| `source_youtube` | Natívny YT zdroj (bez pluginu) | `false` |
-| `source_soundcloud` | SoundCloud zdroj | `true` |
-| `source_bandcamp` | Bandcamp zdroj | `true` |
-| `source_twitch` | Twitch zdroj | `true` |
-| `source_vimeo` | Vimeo zdroj | `true` |
-| `source_http` | Priame HTTP stream URL | `true` |
-| `youtube_plugin_version` | Verzia youtube-plugin JAR | `1.18.1` |
-| `youtube_clients` | YT klienti oddelení čiarkou | `MUSIC,ANDROID_VR,WEB,...` |
-| `youtube_oauth_enabled` | OAuth autorizácia (datacenter IP) | `false` |
-| `youtube_oauth_refresh_token` | OAuth token po autorizácii | *(prázdne)* |
-| `buffer_duration_ms` | Audio buffer v ms | `400` |
-| `frame_buffer_duration_ms` | Frame buffer v ms | `5000` |
-| `player_update_interval` | Interval update správ (s) | `5` |
-| `youtube_playlist_load_limit` | Max stránok pri načítaní YT playlistu | `6` |
+| `source_youtube` | Natívny YT zdroj (ponechaj `false` pri použití pluginu) | `false` |
+| `youtube_plugin_version` | Verzia dev.lavalink.youtube pluginu | `1.18.2` |
+| `youtube_clients` | YT InnerTube klienti | `MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5` |
+| `youtube_oauth_enabled` | YouTube Google OAuth autorizácia | `false` |
+| `youtube_oauth_refresh_token` | OAuth refresh token | *(prázdne)* |
+| `youtube_po_token` | Proof of Origin token (voliteľné) | *(prázdne)* |
+| `youtube_visitor_data` | Visitor Data pre PO token (voliteľné) | *(prázdne)* |
 | `log_level` | Úroveň logovania | `INFO` |
 
-### 4. Spusti
-
-Klikni **Start**. V záložke **Log** uvidíš:
-```
-Lavalink Addon v2.0.0
-Port: 2333
-...
-Lavalink is ready to accept connections.
-```
-
 ---
 
-## Pripojenie Discord bota
+## Trvalé úložisko pre Plugin (Persistent Storage)
 
-Na Oracle Cloud (alebo iný server) nastav env premenné:
-
-```bash
-LAVALINK_HOST=192.168.1.x    # IP tvojho HA v lokálnej sieti
-LAVALINK_PORT=2333
-LAVALINK_PASSWORD=hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D
-```
-
-Alebo ak bot beží na rovnakom stroji ako HA:
-```bash
-LAVALINK_HOST=localhost
-```
-
-> **Domáca IP = YouTube funguje bez obmedzení.** `youtube_oauth_enabled` nechaj `false`.
-
----
-
-## Zmena portu
-
-1. V **Configuration** zmeň `server_port` na požadované číslo (napr. `2334`)
-2. V **Configuration** zmeň aj port v sekcii **Network** (HA zobrazí GUI pre port mapping)
-3. **Reštartuj** addon
-4. Aktualizuj `LAVALINK_PORT` env premennú na bote
-
----
-
-## Bezpečnosť
-
-- Addon beží v **izolovanom Docker bridge networku** (`host_network: false`)
-- Port je dostupný len v **lokálnej sieti** — bez router port-forwardu internet ho nevidí
-- Addon nemá prístup k HA Core API ani Supervisor API
-- Heslo nastavuj priamo v HA UI, nie v súboroch
-
----
-
-## Riešenie problémov
-
-**"Local add-ons" sa neobjaví:**
-Skontroluj Settings → System → Logs → vyber "Supervisor" — tam bude YAML chyba.
-
-**Addon sa nespustí / JVM crash:**
-Zvýš `jvm_max_heap_mb` (skús 512). Lavalink potrebuje ~150-200 MB v steady state.
-
-**Bot sa nevie pripojiť:**
-- Skontroluj IP HA v lokálnej sieti (Settings → System → Network)
-- Skontroluj či heslo v bote = heslo v addon Configuration
-- Skontroluj či port súhlasí
-
-**YouTube blokuje (ak bot beží na datacenter IP):**
-Zapni `youtube_oauth_enabled: true`, nechaj `youtube_oauth_refresh_token` prázdny,
-reštartuj — v logoch nájdeš aktivačný link + kód. Po autorizácii vlož token a reštartuj znova.
+Všetky stiahnuté plugin súbory sa ukladajú do `/data/plugins`. Pri reštarte alebo aktualizácii addonu sa plugin nemusí znova sťaahovať z internetu, čo urýchľuje štart na minimum.

@@ -17,7 +17,8 @@ RUN curl -fsSL \
     "https://github.com/lavalink-devs/Lavalink/releases/download/${LAVALINK_VERSION}/Lavalink.jar" \
     -o Lavalink.jar
 
-RUN mkdir -p /opt/lavalink/plugins
+# Vytvor slozku pre plugins (bude prepojena s /data/plugins pre ukladanie na trvale ulozisko)
+RUN mkdir -p /opt/lavalink/plugins /data/plugins
 
 # Skopiruj celu rootfs strukturu (s6-overlay services + skripty)
 COPY rootfs/ /
@@ -30,3 +31,4 @@ RUN find /etc/s6-overlay /opt/lavalink -name "run" -o -name "finish" -o -name "*
     chmod +x /opt/lavalink/generate_config.sh 2>/dev/null || true
 
 EXPOSE 2333
+

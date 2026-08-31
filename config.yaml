@@ -1,7 +1,8 @@
 name: "Lavalink"
-description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI."
-version: "2.0.4"
+description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
+version: "2.1.0"
 slug: "lavalink"
+image: "ghcr.io/myky2008/lavalink-app-homeassistant/{arch}"
 init: false
 arch:
   - aarch64
@@ -47,9 +48,11 @@ options:
 
   # --- YouTube plugin ---
   youtube_plugin_version: "1.18.2"
-  youtube_clients: "MUSIC,ANDROID_VR,WEB,WEBEMBEDDED,TVHTML5_SIMPLY,MWEB,IOS"
+  youtube_clients: "MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5"
   youtube_oauth_enabled: false
   youtube_oauth_refresh_token: ""
+  youtube_po_token: ""
+  youtube_visitor_data: ""
 
   # --- Výkon ---
   buffer_duration_ms: 400
@@ -82,6 +85,8 @@ schema:
   youtube_clients: str
   youtube_oauth_enabled: bool
   youtube_oauth_refresh_token: str
+  youtube_po_token: str
+  youtube_visitor_data: str
 
   # --- Výkon ---
   buffer_duration_ms: int

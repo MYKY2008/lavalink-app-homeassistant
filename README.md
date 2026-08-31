@@ -1,60 +1,96 @@
 # Lavalink — Home Assistant Addon
 
-[![Version](https://img.shields.io/badge/version-2.0.4-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![Architecture](https://img.shields.io/badge/arch-aarch64%20%7C%20amd64-lightgrey.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
+[![GHCR](https://img.shields.io/badge/docker-GHCR%20Prebuilt-success.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant/pkgs/container/lavalink-app-homeassistant)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Standalone [Lavalink v4](https://github.com/lavalink-devs/Lavalink) audio server running as a native Home Assistant addon. Designed for Discord music bots hosted on a separate server — takes advantage of your home IP address to stream YouTube without datacenter IP blocks.
+Standalone [Lavalink v4](https://github.com/lavalink-devs/Lavalink) audio server running as a native Home Assistant addon. Designed for Discord music bots hosted on external servers (e.g., Oracle Cloud, VPS) — takes advantage of your residential home IPv4 address to stream YouTube without datacenter IP blocks.
 
 ---
 
-## Features
+## Key Features
 
-- **Full HA UI configuration** — every Lavalink setting is exposed in the addon Configuration tab, no manual YAML editing required
-- **YouTube plugin** — `youtube-source` plugin with multi-client support (MUSIC, ANDROID_VR, WEB, WEBEMBEDDED, TVHTML5_SIMPLY, MWEB, IOS)
-- **Multi-source support** — YouTube, SoundCloud, Bandcamp, Twitch, Vimeo, HTTP streams
-- **YouTube OAuth** — optional OAuth token support for datacenter IP bypass (not needed when running on home IP)
-- **Isolated networking** — runs in Docker bridge network, port not exposed to internet without explicit router port-forward
-- **Configurable JVM heap** — tune memory usage to fit your hardware
-- **s6-overlay v3** — correct HA addon service lifecycle, clean startup/shutdown
+- ⚡ **Instant Installation & Updates** — Pre-built multi-arch Docker images hosted on GitHub Container Registry (GHCR). Installs/updates in seconds without compiling on your Home Assistant OS device.
+- 💾 **Persistent Plugin Storage** — Plugins are saved to `/data/plugins`, so they are downloaded only once and persist across restarts and updates.
+- 🎵 **YouTube Integration** — Configured for `lavalink-devs/youtube-source` plugin v1.18.2 with multi-client support (`MUSIC`, `ANDROID_VR`, `WEBEMBEDDED`, `MWEB`, `IOS`, `TVHTML5`).
+- 🔑 **YouTube OAuth & PO-Token Support** — Full support for Google OAuth device auth and Proof of Origin (PO-Token) for advanced YouTube rate-limit bypass.
+- 🎛️ **Full HA UI Configuration** — Every Lavalink setting is exposed in the addon Configuration tab.
+- 🔒 **Isolated Networking** — Runs in Docker bridge network on port 2333.
 
 ---
 
 ## Installation
 
-### 1. Add this repository to Home Assistant
+### 1. Add repository to Home Assistant
 
-In Home Assistant, go to:
+In Home Assistant: **Settings → Add-ons → Add-on Store → ⋮ (three dots) → Repositories**
 
-**Settings → Add-ons → Add-on Store → ⋮ (three dots) → Repositories**
-
-Add the following URL:
-
+Add the repository URL:
 ```
 https://github.com/MYKY2008/lavalink-app-homeassistant
 ```
 
-### 2. Install
+### 2. Install & Start
 
-After adding the repository, find **Lavalink** in the store and click **Install**.
+1. Find **Lavalink** in the store and click **Install** (takes < 10 seconds thanks to pre-built GHCR images).
+2. Go to **Configuration** tab to review settings (or keep defaults).
+3. Click **Start**.
 
-> First build downloads `Lavalink.jar` (~100 MB) — takes 2–5 minutes depending on your connection.
-
-### 3. Configure
-
-Go to the **Configuration** tab and adjust settings as needed. All values have sensible defaults.
-
-### 4. Start
-
-Click **Start**. Check the **Log** tab — you should see:
-
-```
-=== Lavalink Addon v2.0.4 ===
+Check the **Log** tab — you should see:
+```text
+=== Lavalink Addon v2.1.0 ===
+Prepojene plugins ulozisko s /data/plugins
 Generujem application.yml z HA konfiguracie...
 Port: 2333 | Heap: 64m-256m | Log: INFO
 Spustam Lavalink JVM...
 ...
 Lavalink is ready to accept connections.
+```
+
+---
+
+## 🌐 Setting up Domain / Reverse Proxy (`lavalink.myky.cz`)
+
+Lavalink is an **API and WebSocket server** for Discord bots — it does **NOT** contain a web browser user interface (HTML page).
+
+> ⚠️ **Important Browser Note:**
+> If you visit `http://<IP>:2333` or `https://lavalink.myky.cz` in a web browser, it will return HTTP `401 Unauthorized` or `404 Not Found`. Cloudflare or Nginx Proxy Manager will display an error page (*"This website has a problem"* / 502 / 401). **This is completely normal and expected.**
+
+### Connecting Discord Bot via Subdomain
+
+To connect a Discord Music Bot (running on Oracle Cloud or anywhere else) via subdomains like `lavalink.myky.cz`:
+
+#### Nginx / Nginx Proxy Manager Config
+Ensure **WebSockets** are enabled on your proxy host.
+
+```nginx
+server {
+    listen 80;
+    server_name lavalink.myky.cz;
+
+    location / {
+        proxy_pass http://<HOME_ASSISTANT_LOCAL_IP>:2333;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### Testing Connection via `curl`
+
+To test if Lavalink is working over network:
+```bash
+curl -H "Authorization: hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D" http://<HOME_ASSISTANT_IP>:2333/version
+```
+Expected response:
+```text
+4.0.8
 ```
 
 ---
@@ -67,104 +103,40 @@ Lavalink is ready to accept connections.
 | `server_password` | Password for bot authentication | `hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D` |
 | `jvm_max_heap_mb` | JVM maximum heap in MB | `256` |
 | `jvm_min_heap_mb` | JVM initial heap in MB | `64` |
-| `source_youtube` | Enable native YouTube source (without plugin) | `false` |
-| `source_soundcloud` | Enable SoundCloud source | `true` |
-| `source_bandcamp` | Enable Bandcamp source | `true` |
-| `source_twitch` | Enable Twitch source | `true` |
-| `source_vimeo` | Enable Vimeo source | `true` |
-| `source_http` | Enable direct HTTP stream URLs | `true` |
+| `source_youtube` | Enable native YouTube source (keep `false` when using plugin) | `false` |
 | `youtube_plugin_version` | Version of the youtube-source plugin | `1.18.2` |
-| `youtube_clients` | Comma-separated list of YouTube InnerTube clients | `MUSIC,ANDROID_VR,WEB,...` |
-| `youtube_oauth_enabled` | Enable YouTube OAuth (for datacenter IP bypass) | `false` |
+| `youtube_clients` | Comma-separated list of YouTube InnerTube clients | `MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5` |
+| `youtube_oauth_enabled` | Enable YouTube OAuth | `false` |
 | `youtube_oauth_refresh_token` | OAuth refresh token after authorization | *(empty)* |
-| `buffer_duration_ms` | Audio buffer duration in ms | `400` |
-| `frame_buffer_duration_ms` | Frame buffer duration in ms | `5000` |
-| `player_update_interval` | Player state update interval in seconds | `5` |
-| `youtube_playlist_load_limit` | Max pages when loading a YouTube playlist | `6` |
+| `youtube_po_token` | Proof of Origin token (optional) | *(empty)* |
+| `youtube_visitor_data` | Visitor Data for PO token (optional) | *(empty)* |
 | `log_level` | Logging verbosity | `INFO` |
 
 ---
 
-## Connecting Your Discord Bot
+## Connecting Your Discord Bot (e.g., from Oracle Cloud)
 
-Set these environment variables on your bot server:
+Set these environment variables on your Discord Music Bot running on Oracle Cloud:
 
 ```bash
-LAVALINK_HOST=192.168.1.x      # Your Home Assistant local IP
-LAVALINK_PORT=2333
+LAVALINK_HOST=lavalink.myky.cz   # Or your Home Assistant WAN IP / local IP
+LAVALINK_PORT=2333               # Or 443 if proxied via SSL
 LAVALINK_PASSWORD=hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D
+LAVALINK_SECURE=false            # Set true if using https/wss
 ```
 
-> **Home IP = YouTube works without restrictions.** Leave `youtube_oauth_enabled` set to `false`.
-
-If your bot runs on a **datacenter IP** (Oracle Cloud, VPS, etc.) and YouTube blocks it:
-
-1. Set `youtube_oauth_enabled: true`, leave `youtube_oauth_refresh_token` empty
-2. Restart the addon
-3. In the **Log** tab, find the activation URL + code:
-   ```
-   Please visit https://www.google.com/device  Code: XXXX-XXXX
-   ```
-4. Open the link in a browser, sign in with a **burner Google account**
-5. Copy the printed `refreshToken` into the Configuration tab
-6. Restart the addon
-
----
-
-## Changing the Port
-
-1. In **Configuration**, change `server_port` to the desired number
-2. In the **Network** section of the addon page, update the port mapping to match
-3. **Restart** the addon
-4. Update `LAVALINK_PORT` on your bot accordingly
-
----
-
-## Security
-
-- Runs in an **isolated Docker bridge network** — `host_network: false`
-- Port 2333 is only accessible within your **local network** by default
-- No access to Home Assistant Core API or Supervisor API
-- Password is configured through HA UI, never stored in source files
-- JVM heap is capped to prevent memory pressure on your HA instance
-
----
-
-## Requirements
-
-- Home Assistant OS or Supervised installation
-- Architecture: `amd64` or `aarch64`
-- At least **512 MB free RAM** (Lavalink uses ~150–200 MB in steady state)
+> **Why this works:** YouTube blocks Oracle Cloud IPs. When the bot delegates audio playback to Lavalink running on your Home Assistant OS, stream traffic originates from your home residential IPv4 connection.
 
 ---
 
 ## Changelog
 
-### 2.0.4
-- Updated default `youtube_plugin_version` to `1.18.2` (1.18.1 deprecated)
-
-### 2.0.3
-- Fixed `s6-rc-compile: invalid type` — all s6-overlay `type`, `up`, `run`, `finish` files now guaranteed LF endings
-- Fixed `s6-envdir: unable to envdir /run/s6/container_environment` — `lavalink-config/up` uses execline `foreground`
-- Added `.gitattributes` to enforce LF on all future pushes from Windows
-- Rewritten to correct **s6-overlay v3** service structure (`rootfs/etc/s6-overlay/`)
-- Fixed `with-contenv` path error causing exit code 111
-- `generate_config.sh` runs as s6 oneshot before JVM starts
-- Removed deprecated `armv7` architecture
-
-### 2.0.2
-- Added `dos2unix` to Dockerfile as secondary CRLF guard
-
-### 2.0.1
-- Added `dos2unix` to Dockerfile to fix CRLF line endings on Windows-copied files
-
-### 2.0.0
-- Full HA UI configurator — all Lavalink settings exposed as addon options
-- Dynamic `application.yml` generation at runtime from addon config
-- Configurable JVM heap, sources, YouTube clients, OAuth, log level
-
-### 1.0.0
-- Initial release
+### 2.1.0
+- **Instant Installation & Updates:** Pre-built multi-arch Docker images (`amd64`, `aarch64`) published to GitHub Container Registry (GHCR).
+- **Persistent Plugins Storage:** Plugins are now saved to `/data/plugins` and persist across container updates and restarts.
+- **YouTube PO-Token Support:** Added `youtube_po_token` and `youtube_visitor_data` configuration options.
+- **Updated YouTube Clients:** Set default clients to `MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5` for high reliability.
+- **Documentation:** Added Nginx/Cloudflare reverse proxy & WebSocket configuration guide.
 
 ---
 

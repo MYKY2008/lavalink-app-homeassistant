@@ -7,7 +7,16 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v2.0.2 ==="
+bashio::log.info "=== Lavalink Addon v2.1.0 ==="
+
+# --- Zabezpec trvale ulozisko pre plugins ---
+mkdir -p /data/plugins
+if [ ! -L /opt/lavalink/plugins ]; then
+    rm -rf /opt/lavalink/plugins
+    ln -s /data/plugins /opt/lavalink/plugins
+    bashio::log.info "Prepojene plugins ulozisko s /data/plugins"
+fi
+
 bashio::log.info "Generujem application.yml z HA konfiguracie..."
 
 # --- Nacitaj options ---
@@ -16,10 +25,12 @@ SERVER_PASSWORD=$(bashio::config 'server_password' 'hFb1XfbERVLgxuuHzZuHNqIX5vwq
 JVM_MAX=$(bashio::config 'jvm_max_heap_mb' '256')
 JVM_MIN=$(bashio::config 'jvm_min_heap_mb' '64')
 LOG_LEVEL=$(bashio::config 'log_level' 'INFO')
-YT_PLUGIN=$(bashio::config 'youtube_plugin_version' '1.18.1')
+YT_PLUGIN=$(bashio::config 'youtube_plugin_version' '1.18.2')
 YT_OAUTH=$(bashio::config 'youtube_oauth_enabled' 'false')
 YT_TOKEN=$(bashio::config 'youtube_oauth_refresh_token' '')
-YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,ANDROID_VR,WEB,WEBEMBEDDED,TVHTML5_SIMPLY,MWEB,IOS')
+YT_POTOKEN=$(bashio::config 'youtube_po_token' '')
+YT_VISITOR=$(bashio::config 'youtube_visitor_data' '')
+YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5')
 SRC_YT=$(bashio::config 'source_youtube' 'false')
 SRC_SC=$(bashio::config 'source_soundcloud' 'true')
 SRC_BC=$(bashio::config 'source_bandcamp' 'true')
@@ -42,7 +53,7 @@ for c in $YT_CLIENTS; do
     [ -n "$c" ] && YT_CLIENTS_YAML="${YT_CLIENTS_YAML}      - ${c}"$'\n'
 done
 IFS="$OLD_IFS"
-[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - ANDROID_VR"$'\n'"      - WEB"$'\n'"      - WEBEMBEDDED"$'\n'"      - TVHTML5_SIMPLY"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'
+[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - ANDROID_VR"$'\n'"      - WEBEMBEDDED"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'"      - TVHTML5"$'\n'
 
 # --- OAuth blok ---
 if [ "${YT_OAUTH}" = "true" ]; then
@@ -53,6 +64,15 @@ if [ "${YT_OAUTH}" = "true" ]; then
     fi
 else
     OAUTH_YAML="    oauth:"$'\n'"      enabled: false"
+fi
+
+# --- PO Token blok ---
+POT_YAML=""
+if [ -n "${YT_POTOKEN}" ] && [ "${YT_POTOKEN}" != "null" ] && [ "${YT_POTOKEN}" != "" ]; then
+    POT_YAML=$'\n'"    pot:"$'\n'"      token: \"${YT_POTOKEN}\""
+    if [ -n "${YT_VISITOR}" ] && [ "${YT_VISITOR}" != "null" ] && [ "${YT_VISITOR}" != "" ]; then
+        POT_YAML="${POT_YAML}"$'\n'"      visitorData: \"${YT_VISITOR}\""
+    fi
 fi
 
 # --- Generuj application.yml ---
@@ -91,7 +111,7 @@ plugins:
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-${YT_CLIENTS_YAML}${OAUTH_YAML}
+${YT_CLIENTS_YAML}${OAUTH_YAML}${POT_YAML}
 
 metrics:
   prometheus:
