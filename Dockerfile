@@ -32,3 +32,4 @@ RUN find /etc/s6-overlay /opt/lavalink -name "run" -o -name "finish" -o -name "*
 
 EXPOSE 2333
 
+LABEL org.opencontainers.image.source="https://github.com/MYKY2008/lavalink-app-homeassistant"
