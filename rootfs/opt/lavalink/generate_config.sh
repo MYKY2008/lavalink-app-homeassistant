@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v2.2.0 ==="
+bashio::log.info "=== Lavalink Addon v2.3.0 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
@@ -30,7 +30,7 @@ YT_OAUTH=$(bashio::config 'youtube_oauth_enabled' 'false')
 YT_TOKEN=$(bashio::config 'youtube_oauth_refresh_token' '')
 YT_POTOKEN=$(bashio::config 'youtube_po_token' '')
 YT_VISITOR=$(bashio::config 'youtube_visitor_data' '')
-YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,ANDROID_MUSIC,ANDROID,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5_SIMPLY')
+YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,TVHTML5,TV,WEB,ANDROID_MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5_SIMPLY')
 SRC_YT=$(bashio::config 'source_youtube' 'false')
 SRC_SC=$(bashio::config 'source_soundcloud' 'true')
 SRC_BC=$(bashio::config 'source_bandcamp' 'true')
@@ -53,7 +53,7 @@ for c in $YT_CLIENTS; do
     [ -n "$c" ] && YT_CLIENTS_YAML="${YT_CLIENTS_YAML}      - ${c}"$'\n'
 done
 IFS="$OLD_IFS"
-[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - ANDROID_MUSIC"$'\n'"      - ANDROID"$'\n'"      - ANDROID_VR"$'\n'"      - WEBEMBEDDED"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'"      - TVHTML5_SIMPLY"$'\n'
+[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - TVHTML5"$'\n'"      - TV"$'\n'"      - WEB"$'\n'"      - ANDROID_MUSIC"$'\n'"      - ANDROID_VR"$'\n'"      - WEBEMBEDDED"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'"      - TVHTML5_SIMPLY"$'\n'
 
 # --- OAuth blok ---
 if [ "${YT_OAUTH}" = "true" ]; then
