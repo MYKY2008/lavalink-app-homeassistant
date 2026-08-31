@@ -1,6 +1,6 @@
 name: "Lavalink"
 description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
-version: "3.1.0"
+version: "3.2.0"
 slug: "lavalink"
 init: false
 arch:
@@ -47,6 +47,12 @@ options:
   youtube_po_token: ""
   youtube_visitor_data: ""
 
+  # --- Spotify & LavaSrc ---
+  spotify_enabled: false
+  spotify_client_id: ""
+  spotify_client_secret: ""
+  spotify_country_code: "SK"
+
   # --- Výkon ---
   buffer_duration_ms: 400
   frame_buffer_duration_ms: 5000
@@ -81,6 +87,12 @@ schema:
   youtube_oauth_refresh_token: str?
   youtube_po_token: str?
   youtube_visitor_data: str?
+
+  # --- Spotify & LavaSrc ---
+  spotify_enabled: bool
+  spotify_client_id: str?
+  spotify_client_secret: str?
+  spotify_country_code: str?
 
   # --- Výkon ---
   buffer_duration_ms: int

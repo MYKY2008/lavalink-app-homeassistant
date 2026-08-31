@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v3.1.0 ==="
+bashio::log.info "=== Lavalink Addon v3.2.0 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
@@ -82,6 +82,24 @@ if [ -n "${YT_CIPHER_URL}" ] && [ "${YT_CIPHER_URL}" != "null" ] && [ "${YT_CIPH
     CIPHER_YAML=$'\n'"    remoteCipher:"$'\n'"      url: \"${YT_CIPHER_URL}\""
 fi
 
+# --- Spotify / LavaSrc options ---
+SPOTIFY_ENABLED=$(bashio::config 'spotify_enabled' 'false')
+SPOTIFY_CLIENT_ID=$(bashio::config 'spotify_client_id' '')
+SPOTIFY_CLIENT_SECRET=$(bashio::config 'spotify_client_secret' '')
+SPOTIFY_COUNTRY_CODE=$(bashio::config 'spotify_country_code' 'SK')
+
+# --- LavaSrc Plugin blok ---
+LAVASRC_PLUGIN_YAML=""
+LAVASRC_CONFIG_YAML=""
+if [ "${SPOTIFY_ENABLED}" = "true" ] || [ -n "${SPOTIFY_CLIENT_ID}" ]; then
+    bashio::log.info "Pripajam plugin LavaSrc (Spotify / Deezer)..."
+    LAVASRC_PLUGIN_YAML=$'\n'"    - dependency: \"com.github.topi314.lavasrc:lavasrc-plugin:4.4.1\""$'\n'"      repository: \"https://maven.lavalink.dev/releases\""$'\n'"      snapshot: false"
+    LAVASRC_CONFIG_YAML=$'\n'"  lavasrc:"$'\n'"    providers:"$'\n'"      - \"ytmsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytmsearch:%QUERY%\""$'\n'"      - \"ytsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytsearch:%QUERY%\""$'\n'"    sources:"$'\n'"      spotify: true"$'\n'"      applemusic: false"$'\n'"      deezer: true"$'\n'"      yandexmusic: false"$'\n'"      flowerytts: false"$'\n'"      youtube: false"
+    if [ -n "${SPOTIFY_CLIENT_ID}" ] && [ "${SPOTIFY_CLIENT_ID}" != "null" ]; then
+        LAVASRC_CONFIG_YAML="${LAVASRC_CONFIG_YAML}"$'\n'"    spotify:"$'\n'"      clientId: \"${SPOTIFY_CLIENT_ID}\""$'\n'"      clientSecret: \"${SPOTIFY_CLIENT_SECRET}\""$'\n'"      countryCode: \"${SPOTIFY_COUNTRY_CODE}\""$'\n'"      playlistLoadLimit: 6"$'\n'"      albumLoadLimit: 6"
+    fi
+fi
+
 # --- Generuj application.yml ---
 cat > "${CONFIG_FILE}" <<EOF
 server:
@@ -91,7 +109,7 @@ server:
 lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:${YT_PLUGIN}"
-      snapshot: false
+      snapshot: false${LAVASRC_PLUGIN_YAML}
   server:
     password: "${SERVER_PASSWORD}"
     sources:
@@ -118,7 +136,7 @@ plugins:
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-${YT_CLIENTS_YAML}${OAUTH_YAML}${POT_YAML}${CIPHER_YAML}
+${YT_CLIENTS_YAML}${OAUTH_YAML}${POT_YAML}${CIPHER_YAML}${LAVASRC_CONFIG_YAML}
 
 metrics:
   prometheus:

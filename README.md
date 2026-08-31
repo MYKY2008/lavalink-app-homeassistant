@@ -1,6 +1,6 @@
 # Lavalink — Home Assistant Addon
 
-[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
+[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![Architecture](https://img.shields.io/badge/arch-aarch64%20%7C%20amd64-lightgrey.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![GHCR](https://img.shields.io/badge/docker-GHCR%20Prebuilt-success.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant/pkgs/container/lavalink-app-homeassistant)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -131,6 +131,11 @@ LAVALINK_SECURE=false            # Set true if using https/wss
 
 ## Changelog
  
+### 3.2.0
+- **Spotify & Deezer Integration (LavaSrc Plugin):** Added native support for loading and playing Spotify tracks, albums, and playlists via `com.github.topi314.lavasrc:lavasrc-plugin:4.4.1`.
+- **Zero Conflict with Personal Devices:** Spotify playback operates via read-only metadata APIs and does not touch Spotify Connect or active playback on phones/PCs.
+- **Configurable via HA UI:** Added `spotify_enabled`, `spotify_client_id`, `spotify_client_secret`, and `spotify_country_code`.
+
 ### 3.1.0
 - **Direct Discord Voice UDP (`host_network: true`):** Runs directly on host network to guarantee reliable zero-loss Discord Voice UDP streaming without Docker NAT drops.
 - **Enhanced Performance:** Increased default JVM heap to 512 MB (min 256 MB) for instant startup and zero GC lag.

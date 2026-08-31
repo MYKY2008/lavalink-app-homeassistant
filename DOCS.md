@@ -87,6 +87,10 @@ LAVALINK_SECURE=false              # nastav true pri wss:// (HTTPS)
 | `youtube_oauth_refresh_token` | OAuth refresh token | *(prázdne)* |
 | `youtube_po_token` | Proof of Origin token (voliteľné) | *(prázdne)* |
 | `youtube_visitor_data` | Visitor Data pre PO token (voliteľné) | *(prázdne)* |
+| `spotify_enabled` | Zapnúť podporu pre Spotify & Deezer (LavaSrc) | `false` |
+| `spotify_client_id` | Spotify Developer Client ID | *(prázdne)* |
+| `spotify_client_secret` | Spotify Developer Client Secret | *(prázdne)* |
+| `spotify_country_code` | Kód krajiny pre Spotify trh (SK/CZ/US) | `SK` |
 | `log_level` | Úroveň logovania | `INFO` |
 
 ---
