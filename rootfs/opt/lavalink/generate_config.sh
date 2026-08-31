@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v2.4.0 ==="
+bashio::log.info "=== Lavalink Addon v2.5.0 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
@@ -30,6 +30,7 @@ YT_OAUTH=$(bashio::config 'youtube_oauth_enabled' 'false')
 YT_TOKEN=$(bashio::config 'youtube_oauth_refresh_token' '')
 YT_POTOKEN=$(bashio::config 'youtube_po_token' '')
 YT_VISITOR=$(bashio::config 'youtube_visitor_data' '')
+YT_CIPHER_URL=$(bashio::config 'youtube_remote_cipher_url' 'https://cipher.kikkia.dev/')
 YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,TVHTML5,TV,WEB,ANDROID_MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5_SIMPLY')
 SRC_YT=$(bashio::config 'source_youtube' 'false')
 SRC_SC=$(bashio::config 'source_soundcloud' 'true')
@@ -75,6 +76,12 @@ if [ -n "${YT_POTOKEN}" ] && [ "${YT_POTOKEN}" != "null" ] && [ "${YT_POTOKEN}" 
     fi
 fi
 
+# --- Remote Cipher blok ---
+CIPHER_YAML=""
+if [ -n "${YT_CIPHER_URL}" ] && [ "${YT_CIPHER_URL}" != "null" ] && [ "${YT_CIPHER_URL}" != "" ]; then
+    CIPHER_YAML=$'\n'"    remoteCipher:"$'\n'"      url: \"${YT_CIPHER_URL}\""
+fi
+
 # --- Generuj application.yml ---
 cat > "${CONFIG_FILE}" <<EOF
 server:
@@ -111,7 +118,7 @@ plugins:
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-${YT_CLIENTS_YAML}${OAUTH_YAML}${POT_YAML}
+${YT_CLIENTS_YAML}${OAUTH_YAML}${POT_YAML}${CIPHER_YAML}
 
 metrics:
   prometheus:

@@ -1,6 +1,6 @@
 name: "Lavalink"
 description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
-version: "2.4.0"
+version: "2.5.0"
 slug: "lavalink"
 init: false
 arch:
@@ -48,6 +48,7 @@ options:
   # --- YouTube plugin ---
   youtube_plugin_version: "1.18.2"
   youtube_clients: "MUSIC,TVHTML5,TV,WEB,ANDROID_MUSIC,ANDROID_VR,WEBEMBEDDED,MWEB,IOS,TVHTML5_SIMPLY"
+  youtube_remote_cipher_url: "https://cipher.kikkia.dev/"
   youtube_oauth_enabled: false
   youtube_oauth_refresh_token: ""
   youtube_po_token: ""
@@ -82,6 +83,7 @@ schema:
   # --- YouTube plugin ---
   youtube_plugin_version: str
   youtube_clients: str
+  youtube_remote_cipher_url: str
   youtube_oauth_enabled: bool
   youtube_oauth_refresh_token: str
   youtube_po_token: str
