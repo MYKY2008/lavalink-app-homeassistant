@@ -1,8 +1,8 @@
 #!/command/with-contenv bashio
 set -e
 
-JVM_MAX=$(bashio::config "jvm_max_heap_mb" "256")
-JVM_MIN=$(bashio::config "jvm_min_heap_mb" "64")
+JVM_MAX=$(bashio::config "jvm_max_heap_mb" "512")
+JVM_MIN=$(bashio::config "jvm_min_heap_mb" "256")
 
 bashio::log.info "Spustam Lavalink JVM (heap: ${JVM_MIN}m-${JVM_MAX}m)..."
 

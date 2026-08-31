@@ -1,6 +1,6 @@
 # Lavalink — Home Assistant Addon
 
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![Architecture](https://img.shields.io/badge/arch-aarch64%20%7C%20amd64-lightgrey.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![GHCR](https://img.shields.io/badge/docker-GHCR%20Prebuilt-success.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant/pkgs/container/lavalink-app-homeassistant)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -130,6 +130,12 @@ LAVALINK_SECURE=false            # Set true if using https/wss
 ---
 
 ## Changelog
+ 
+### 3.1.0
+- **Direct Discord Voice UDP (`host_network: true`):** Runs directly on host network to guarantee reliable zero-loss Discord Voice UDP streaming without Docker NAT drops.
+- **Enhanced Performance:** Increased default JVM heap to 512 MB (min 256 MB) for instant startup and zero GC lag.
+- **Updated YouTube Clients:** Set default clients to `MUSIC,TV,WEBEMBEDDED,ANDROID_VR,MWEB,WEB` and removed deprecated `TVHTML5`.
+- **Fixed Schema Validations:** Marked optional YouTube tokens as `str?` to prevent red validation errors in HA UI.
 
 ### 2.1.0
 - **Instant Installation & Updates:** Pre-built multi-arch Docker images (`amd64`, `aarch64`) published to GitHub Container Registry (GHCR).

@@ -1,6 +1,6 @@
 name: "Lavalink"
 description: "Lavalink v4 audio server pre Discord music boty. Plne konfigurovateľný cez HA UI s okamžitou inštaláciou."
-version: "3.0.0"
+version: "3.1.0"
 slug: "lavalink"
 init: false
 arch:
@@ -8,15 +8,8 @@ arch:
   - amd64
 startup: services
 
-# Izolovaný bridge network — NIE host_network
-# Port je vystavený na lokálnu sieť ale NIE na internet (bez router port-forwardu)
-host_network: false
-
-ports:
-  2333/tcp: 2333
-
-ports_description:
-  2333/tcp: "Lavalink WebSocket / HTTP API"
+# Host network — nutné pre bezproblémový Discord Voice UDP stream (bez Docker NAT strát)
+host_network: true
 
 hassio_api: false
 homeassistant_api: false
@@ -34,8 +27,8 @@ options:
   server_password: "hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D"
 
   # --- JVM pamäť ---
-  jvm_max_heap_mb: 256
-  jvm_min_heap_mb: 64
+  jvm_max_heap_mb: 512
+  jvm_min_heap_mb: 256
 
   # --- Zdroje (sources) ---
   source_youtube: false
@@ -47,7 +40,7 @@ options:
 
   # --- YouTube plugin ---
   youtube_plugin_version: "1.18.2"
-  youtube_clients: "WEB_REMIX,MUSIC,TVHTML5,TV,WEB,ANDROID_MUSIC,ANDROID_VR,MWEB,IOS"
+  youtube_clients: "MUSIC,TV,WEBEMBEDDED,ANDROID_VR,MWEB,WEB"
   youtube_remote_cipher_url: "https://cipher.kikkia.dev/"
   youtube_oauth_enabled: false
   youtube_oauth_refresh_token: ""
@@ -83,11 +76,11 @@ schema:
   # --- YouTube plugin ---
   youtube_plugin_version: str
   youtube_clients: str
-  youtube_remote_cipher_url: str
+  youtube_remote_cipher_url: str?
   youtube_oauth_enabled: bool
-  youtube_oauth_refresh_token: str
-  youtube_po_token: str
-  youtube_visitor_data: str
+  youtube_oauth_refresh_token: str?
+  youtube_po_token: str?
+  youtube_visitor_data: str?
 
   # --- Výkon ---
   buffer_duration_ms: int

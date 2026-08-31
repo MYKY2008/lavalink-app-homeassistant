@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v3.0.0 ==="
+bashio::log.info "=== Lavalink Addon v3.1.0 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
@@ -22,8 +22,8 @@ bashio::log.info "Generujem application.yml z HA konfiguracie..."
 # --- Nacitaj options ---
 SERVER_PORT=$(bashio::config 'server_port' '2333')
 SERVER_PASSWORD=$(bashio::config 'server_password' 'hFb1XfbERVLgxuuHzZuHNqIX5vwqzN2D')
-JVM_MAX=$(bashio::config 'jvm_max_heap_mb' '256')
-JVM_MIN=$(bashio::config 'jvm_min_heap_mb' '64')
+JVM_MAX=$(bashio::config 'jvm_max_heap_mb' '512')
+JVM_MIN=$(bashio::config 'jvm_min_heap_mb' '256')
 LOG_LEVEL=$(bashio::config 'log_level' 'INFO')
 YT_PLUGIN=$(bashio::config 'youtube_plugin_version' '1.18.2')
 YT_OAUTH=$(bashio::config 'youtube_oauth_enabled' 'false')
@@ -31,7 +31,7 @@ YT_TOKEN=$(bashio::config 'youtube_oauth_refresh_token' '')
 YT_POTOKEN=$(bashio::config 'youtube_po_token' '')
 YT_VISITOR=$(bashio::config 'youtube_visitor_data' '')
 YT_CIPHER_URL=$(bashio::config 'youtube_remote_cipher_url' 'https://cipher.kikkia.dev/')
-YT_CLIENTS=$(bashio::config 'youtube_clients' 'WEB_REMIX,MUSIC,TVHTML5,TV,WEB,ANDROID_MUSIC,ANDROID_VR,MWEB,IOS')
+YT_CLIENTS=$(bashio::config 'youtube_clients' 'MUSIC,TV,WEBEMBEDDED,ANDROID_VR,MWEB,WEB')
 SRC_YT=$(bashio::config 'source_youtube' 'false')
 SRC_SC=$(bashio::config 'source_soundcloud' 'true')
 SRC_BC=$(bashio::config 'source_bandcamp' 'true')
@@ -54,7 +54,7 @@ for c in $YT_CLIENTS; do
     [ -n "$c" ] && YT_CLIENTS_YAML="${YT_CLIENTS_YAML}      - ${c}"$'\n'
 done
 IFS="$OLD_IFS"
-[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - WEB_REMIX"$'\n'"      - MUSIC"$'\n'"      - TVHTML5"$'\n'"      - TV"$'\n'"      - WEB"$'\n'"      - ANDROID_MUSIC"$'\n'"      - ANDROID_VR"$'\n'"      - MWEB"$'\n'"      - IOS"$'\n'
+[ -z "$YT_CLIENTS_YAML" ] && YT_CLIENTS_YAML="      - MUSIC"$'\n'"      - TV"$'\n'"      - WEBEMBEDDED"$'\n'"      - ANDROID_VR"$'\n'"      - MWEB"$'\n'"      - WEB"$'\n'
 
 # --- OAuth blok ---
 if [ "${YT_OAUTH}" = "true" ]; then
