@@ -1,6 +1,6 @@
 # Lavalink — Home Assistant Addon
 
-[![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
+[![Version](https://img.shields.io/badge/version-3.2.1-blue.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![Architecture](https://img.shields.io/badge/arch-aarch64%20%7C%20amd64-lightgrey.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant)
 [![GHCR](https://img.shields.io/badge/docker-GHCR%20Prebuilt-success.svg)](https://github.com/MYKY2008/lavalink-app-homeassistant/pkgs/container/lavalink-app-homeassistant)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

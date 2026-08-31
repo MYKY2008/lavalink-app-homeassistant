@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v3.2.0 ==="
+bashio::log.info "=== Lavalink Addon v3.2.1 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
@@ -92,9 +92,9 @@ SPOTIFY_COUNTRY_CODE=$(bashio::config 'spotify_country_code' 'SK')
 LAVASRC_PLUGIN_YAML=""
 LAVASRC_CONFIG_YAML=""
 if [ "${SPOTIFY_ENABLED}" = "true" ] || [ -n "${SPOTIFY_CLIENT_ID}" ]; then
-    bashio::log.info "Pripajam plugin LavaSrc (Spotify / Deezer)..."
+    bashio::log.info "Pripajam plugin LavaSrc (Spotify)..."
     LAVASRC_PLUGIN_YAML=$'\n'"    - dependency: \"com.github.topi314.lavasrc:lavasrc-plugin:4.4.1\""$'\n'"      repository: \"https://maven.lavalink.dev/releases\""$'\n'"      snapshot: false"
-    LAVASRC_CONFIG_YAML=$'\n'"  lavasrc:"$'\n'"    providers:"$'\n'"      - \"ytmsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytmsearch:%QUERY%\""$'\n'"      - \"ytsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytsearch:%QUERY%\""$'\n'"    sources:"$'\n'"      spotify: true"$'\n'"      applemusic: false"$'\n'"      deezer: true"$'\n'"      yandexmusic: false"$'\n'"      flowerytts: false"$'\n'"      youtube: false"
+    LAVASRC_CONFIG_YAML=$'\n'"  lavasrc:"$'\n'"    providers:"$'\n'"      - \"ytmsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytmsearch:%QUERY%\""$'\n'"      - \"ytsearch:\\\"%ISRC%\\\"\""$'\n'"      - \"ytsearch:%QUERY%\""$'\n'"    sources:"$'\n'"      spotify: true"$'\n'"      applemusic: false"$'\n'"      deezer: false"$'\n'"      yandexmusic: false"$'\n'"      flowerytts: false"$'\n'"      youtube: false"
     if [ -n "${SPOTIFY_CLIENT_ID}" ] && [ "${SPOTIFY_CLIENT_ID}" != "null" ]; then
         LAVASRC_CONFIG_YAML="${LAVASRC_CONFIG_YAML}"$'\n'"    spotify:"$'\n'"      clientId: \"${SPOTIFY_CLIENT_ID}\""$'\n'"      clientSecret: \"${SPOTIFY_CLIENT_SECRET}\""$'\n'"      countryCode: \"${SPOTIFY_COUNTRY_CODE}\""$'\n'"      playlistLoadLimit: 6"$'\n'"      albumLoadLimit: 6"
     fi
