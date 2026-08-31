@@ -7,7 +7,7 @@ set -e
 
 CONFIG_FILE="/opt/lavalink/application.yml"
 
-bashio::log.info "=== Lavalink Addon v2.1.1 ==="
+bashio::log.info "=== Lavalink Addon v2.2.0 ==="
 
 # --- Zabezpec trvale ulozisko pre plugins ---
 mkdir -p /data/plugins
